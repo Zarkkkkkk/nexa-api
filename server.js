@@ -7,88 +7,43 @@ app.use(cors());
 app.use(express.json());
 
 // =========================
-// PTERO CONFIG
-// =========================
-const PTERO_PANEL = "https://server.lanzcihuy.fanzzhost.dpdns.org";
-const API_KEY = "ptlc_Q30SpuDD7oxyp5oNIV5cR3vkwyzaMtpHZYDbuWJorm7"; // API KEY kamu
+const PANEL = "https://server.lanzcihuy.fanzzhost.dpdns.org";
+const KEY = "ptlc_Q30SpuDD7oxyp5oNIV5cR3vkwyzaMtpHZYDbuWJorm7";
 const SERVER_ID = "5144a4b4";
 
 // =========================
-// HEADERS
-// =========================
 const headers = {
-    Authorization: `Bearer ${API_KEY}`,
-    Accept: "application/vnd.pterodactyl.v1+json",
-    "Content-Type": "application/json"
+Authorization: `Bearer ${KEY}`,
+Accept: "application/vnd.pterodactyl.v1+json",
+"Content-Type": "application/json"
 };
 
 // =========================
-// ROOT
-// =========================
-app.get("/", (req, res) => {
-    res.json({
-        status: true,
-        message: "Nexa API Ptero Control Online"
-    });
+app.get("/", (req,res)=>{
+res.json({status:true,message:"Nexa API OK"});
 });
 
-// =========================
-// START BOT
-// =========================
-app.post("/api/start", async (req, res) => {
-    try {
-        await axios.post(
-            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
-            { signal: "start" },
-            { headers }
-        );
-
-        res.json({ status: true, message: "Bot started" });
-
-    } catch (e) {
-        res.json({ status: false, error: e.message });
-    }
+// START
+app.post("/api/start", async (req,res)=>{
+await axios.post(`${PANEL}/api/client/servers/${SERVER_ID}/power`,
+{signal:"start"},{headers});
+res.json({status:true});
 });
 
-// =========================
-// STOP BOT
-// =========================
-app.post("/api/stop", async (req, res) => {
-    try {
-        await axios.post(
-            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
-            { signal: "stop" },
-            { headers }
-        );
-
-        res.json({ status: true, message: "Bot stopped" });
-
-    } catch (e) {
-        res.json({ status: false, error: e.message });
-    }
+// STOP
+app.post("/api/stop", async (req,res)=>{
+await axios.post(`${PANEL}/api/client/servers/${SERVER_ID}/power`,
+{signal:"stop"},{headers});
+res.json({status:true});
 });
 
-// =========================
-// RESTART BOT
-// =========================
-app.post("/api/restart", async (req, res) => {
-    try {
-        await axios.post(
-            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
-            { signal: "restart" },
-            { headers }
-        );
-
-        res.json({ status: true, message: "Bot restarted" });
-
-    } catch (e) {
-        res.json({ status: false, error: e.message });
-    }
+// RESTART
+app.post("/api/restart", async (req,res)=>{
+await axios.post(`${PANEL}/api/client/servers/${SERVER_ID}/power`,
+{signal:"restart"},{headers});
+res.json({status:true});
 });
 
-// =========================
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("🚀 Nexa Ptero API running");
+app.listen(process.env.PORT || 3000, ()=>{
+console.log("Nexa API running");
 });
