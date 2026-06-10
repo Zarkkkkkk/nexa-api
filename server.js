@@ -5,74 +5,50 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ======================
-// 🤖 JADIBOT API
-// ======================
+// JADIBOT
 app.post("/api/jadibot", (req, res) => {
     const { number, mode } = req.body;
 
     if (!number) {
-        return res.json({
-            status: false,
-            message: "Nomor tidak boleh kosong"
-        });
+        return res.json({ status: false, message: "Nomor kosong" });
     }
 
-    console.log("JADIBOT REQUEST:", number, mode);
+    console.log("JADIBOT:", number, mode);
 
-    // nanti bot kamu yang proses (manual trigger dulu)
     return res.json({
         status: true,
-        message: "Request jadibot diterima",
+        message: "Request diterima",
         number,
         mode
     });
 });
 
-// ======================
-// 🎁 REDEEM API
-// ======================
+// REDEEM
 app.post("/api/redeem", (req, res) => {
     const { code, user } = req.body;
 
-    if (!code || !user) {
-        return res.json({
-            status: false,
-            message: "Data kurang"
-        });
-    }
-
-    console.log("REDEEM:", code, user);
-
     return res.json({
         status: true,
-        message: "Code diproses",
-        code
+        message: "Redeem diproses",
+        code,
+        user
     });
 });
 
-// ======================
-// 🏆 LEADERBOARD API (dummy dulu)
-// ======================
+// LEADERBOARD (dummy dulu)
 app.get("/api/leaderboard", (req, res) => {
-    const type = req.query.type || "koin";
-
-    const data = [
-        { name: "Elvan", koin: 5000, exp: 1200 },
-        { name: "NexaUser", koin: 3000, exp: 900 },
-        { name: "BotMaster", koin: 2000, exp: 700 }
-    ];
-
-    return res.json({
+    res.json({
         status: true,
-        type,
-        data
+        data: [
+            { name: "Elvan", koin: 5000 },
+            { name: "NexaUser", koin: 3000 }
+        ]
     });
 });
 
-// ======================
+// ⚠️ PENTING RAILWAY
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log("🚀 Nexa API running on port " + PORT);
+    console.log("Nexa API running on port " + PORT);
 });
