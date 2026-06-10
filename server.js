@@ -10,7 +10,7 @@ app.use(express.json());
 // PTERO CONFIG
 // =========================
 const PTERO_PANEL = "https://server.lanzcihuy.fanzzhost.dpdns.org";
-const API_KEY = "ptlc_xxxxxxxx"; // API KEY kamu
+const API_KEY = "ptlc_Q30SpuDD7oxyp5oNIV5cR3vkwyzaMtpHZYDbuWJorm7"; // API KEY kamu
 const SERVER_ID = "5144a4b4";
 
 // =========================
