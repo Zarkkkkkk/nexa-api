@@ -1,167 +1,94 @@
 import express from "express";
 import cors from "cors";
-import fs from "fs";
+import axios from "axios";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // =========================
-// CONFIG BOT BRIDGE
+// PTERO CONFIG
 // =========================
-const BOT_BRIDGE = "http://IP-BOT-KAMU:4000"; 
-// WAJIB: isi IP VPS / Pterodactyl bot kamu
+const PTERO_PANEL = "https://server.lanzcihuy.fanzzhost.dpdns.org";
+const API_KEY = "ptlc_xxxxxxxx"; // API KEY kamu
+const SERVER_ID = "5144a4b4";
 
 // =========================
-// HEALTH CHECK
+// HEADERS
+// =========================
+const headers = {
+    Authorization: `Bearer ${API_KEY}`,
+    Accept: "application/vnd.pterodactyl.v1+json",
+    "Content-Type": "application/json"
+};
+
+// =========================
+// ROOT
 // =========================
 app.get("/", (req, res) => {
     res.json({
         status: true,
-        message: "🚀 Nexa API Online",
-        version: "2.0"
+        message: "Nexa API Ptero Control Online"
     });
 });
 
 // =========================
-// 🤖 JADIBOT REAL CONNECT
+// START BOT
 // =========================
-app.post("/api/jadibot", async (req, res) => {
+app.post("/api/start", async (req, res) => {
     try {
-        const { number, mode } = req.body;
+        await axios.post(
+            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
+            { signal: "start" },
+            { headers }
+        );
 
-        if (!number) {
-            return res.json({
-                status: false,
-                message: "Nomor kosong"
-            });
-        }
+        res.json({ status: true, message: "Bot started" });
 
-        const response = await fetch(`${BOT_BRIDGE}/api/jadibot`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ number, mode })
-        });
-
-        const data = await response.json();
-
-        return res.json(data);
-
-    } catch (err) {
-        return res.json({
-            status: false,
-            message: "Bot bridge tidak terhubung",
-            error: err.message
-        });
+    } catch (e) {
+        res.json({ status: false, error: e.message });
     }
 });
 
 // =========================
-// 🎁 REDEEM SYSTEM (REAL FILE DB)
+// STOP BOT
 // =========================
-const CODE_FILE = "./database/redeemCodes.json";
-const CLAIM_FILE = "./database/claimed.json";
-
-function loadJSON(file, fallback) {
+app.post("/api/stop", async (req, res) => {
     try {
-        return JSON.parse(fs.readFileSync(file));
-    } catch {
-        return fallback;
+        await axios.post(
+            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
+            { signal: "stop" },
+            { headers }
+        );
+
+        res.json({ status: true, message: "Bot stopped" });
+
+    } catch (e) {
+        res.json({ status: false, error: e.message });
     }
-}
-
-function saveJSON(file, data) {
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
-
-app.post("/api/redeem", (req, res) => {
-    const { user, code } = req.body;
-
-    if (!user || !code) {
-        return res.json({
-            status: false,
-            message: "User atau code kosong"
-        });
-    }
-
-    const codes = loadJSON(CODE_FILE, {});
-    const claims = loadJSON(CLAIM_FILE, {});
-
-    if (!codes[code]) {
-        return res.json({
-            status: false,
-            message: "Kode tidak valid"
-        });
-    }
-
-    if (!claims[user]) claims[user] = [];
-
-    if (claims[user].includes(code)) {
-        return res.json({
-            status: false,
-            message: "Kode sudah pernah dipakai"
-        });
-    }
-
-    claims[user].push(code);
-    saveJSON(CLAIM_FILE, claims);
-
-    return res.json({
-        status: true,
-        message: "Redeem berhasil",
-        reward: codes[code].reward
-    });
 });
 
 // =========================
-// 🏆 LEADERBOARD REAL (FROM FILE)
+// RESTART BOT
 // =========================
-const USER_DB = "./database/users.json";
+app.post("/api/restart", async (req, res) => {
+    try {
+        await axios.post(
+            `${PTERO_PANEL}/api/client/servers/${SERVER_ID}/power`,
+            { signal: "restart" },
+            { headers }
+        );
 
-app.get("/api/leaderboard", (req, res) => {
-    const users = loadJSON(USER_DB, {});
+        res.json({ status: true, message: "Bot restarted" });
 
-    const list = Object.entries(users).map(([id, u]) => ({
-        name: u.name || id,
-        koin: u.koin || 0,
-        exp: u.exp || 0
-    }));
-
-    list.sort((a, b) => b.koin - a.koin);
-
-    res.json({
-        status: true,
-        data: list.slice(0, 10)
-    });
-});
-
-// =========================
-// 🧠 ADD USER (AUTO CREATE)
-// =========================
-app.post("/api/user", (req, res) => {
-    const { id } = req.body;
-
-    const users = loadJSON(USER_DB, {});
-
-    if (!users[id]) {
-        users[id] = {
-            name: id,
-            koin: 0,
-            exp: 0
-        };
+    } catch (e) {
+        res.json({ status: false, error: e.message });
     }
-
-    saveJSON(USER_DB, users);
-
-    res.json({
-        status: true,
-        user: users[id]
-    });
 });
 
 // =========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log("🚀 Nexa API running on port " + PORT);
+    console.log("🚀 Nexa Ptero API running");
 });
